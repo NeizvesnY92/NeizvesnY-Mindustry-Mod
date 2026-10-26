@@ -5,6 +5,8 @@ size: 2
 health: 720
 range: 120
 reload: 18
+recoil: 2
+recoilTime: 12
 shoot: {
   type: ShootAlternate
   barrels: 2
