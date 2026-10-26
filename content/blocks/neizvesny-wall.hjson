@@ -2,6 +2,7 @@ type: Wall
 name: NeizvesnY Wall
 description: A reinforced wall created by NeizvesnY.
 health: 480
+armor: 5
 size: 1
 requirements: [copper/12, lead/8]
 category: defense
