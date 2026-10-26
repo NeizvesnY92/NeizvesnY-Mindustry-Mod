@@ -3,7 +3,7 @@ name: NeizvesnY Sentinel
 description: A compact defensive turret that fires copper ammunition.
 size: 2
 health: 720
-range: 200
+range: 320
 reload: 9
 recoil: 2
 recoilTime: 12
@@ -28,7 +28,7 @@ ammoTypes: {
     damage: 12
     width: 7
     height: 9
-    lifetime:  65
+    lifetime: 100
     frontColor: ffe4a3
     backColor: ff9b43
     trailColor: ffad52
@@ -43,7 +43,7 @@ ammoTypes: {
     damage: 18
     width: 7
     height: 11
-    lifetime:  50
+    lifetime: 80
     ammoMultiplier: 2
     frontColor: e5e5e5
     backColor: 686c76
@@ -59,7 +59,7 @@ ammoTypes: {
     damage: 15
     width: 7
     height: 9
-    lifetime:  53
+    lifetime: 84
     ammoMultiplier: 2
     reloadMultiplier: 1.35
     frontColor: ff9c9c
