@@ -7,6 +7,7 @@ range: 120
 reload: 18
 recoil: 2
 recoilTime: 12
+shootSound: sentinel-nyan
 shoot: {
   type: ShootAlternate
   barrels: 2
