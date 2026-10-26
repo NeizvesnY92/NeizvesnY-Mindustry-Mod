@@ -4,7 +4,7 @@ description: A compact defensive turret that fires copper ammunition.
 size: 2
 health: 720
 range: 120
-reload: 18
+reload: 9
 recoil: 2
 recoilTime: 12
 shootSound: sentinel-nyan
