@@ -14,6 +14,8 @@ shoot: {
   spread: 5
   shots: 1
 }
+shootEffect: shootSmall
+smokeEffect: shootSmallSmoke
 inaccuracy: 3
 rotateSpeed: 7
 shootCone: 12
@@ -27,6 +29,13 @@ ammoTypes: {
     width: 7
     height: 9
     lifetime: 40
+    frontColor: ffe4a3
+    backColor: ff9b43
+    trailColor: ffad52
+    trailLength: 8
+    trailWidth: 2
+    hitEffect: hitBulletSmall
+    despawnEffect: hitBulletSmall
   }
 }
 requirements: [copper/65, lead/45]
