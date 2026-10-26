@@ -1,0 +1,25 @@
+type: ItemTurret
+name: NeizvesnY Sentinel
+description: A compact defensive turret that fires copper ammunition.
+size: 2
+health: 720
+range: 120
+reload: 18
+inaccuracy: 3
+rotateSpeed: 7
+shootCone: 12
+targetAir: true
+targetGround: true
+ammoTypes: {
+  copper: {
+    type: BasicBulletType
+    speed: 3.5
+    damage: 12
+    width: 7
+    height: 9
+    lifetime: 40
+  }
+}
+requirements: [copper/65, lead/45]
+category: turret
+research: duo
