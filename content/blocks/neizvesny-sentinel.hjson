@@ -5,6 +5,12 @@ size: 2
 health: 720
 range: 120
 reload: 18
+shoot: {
+  type: ShootAlternate
+  barrels: 2
+  spread: 5
+  shots: 1
+}
 inaccuracy: 3
 rotateSpeed: 7
 shootCone: 12
