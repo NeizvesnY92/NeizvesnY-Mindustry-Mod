@@ -1,0 +1,76 @@
+type: ItemTurret
+name: NeizvesnY Bastion
+description: A heavy long-range twin-barrel turret.
+size: 3
+health: 1600
+range: 400
+reload: 14
+recoil: 2
+recoilTime: 12
+shootSound: sentinel-nyan
+shoot: {
+  type: ShootAlternate
+  barrels: 2
+  spread: 5
+  shots: 1
+}
+shootEffect: shootSmall
+smokeEffect: shootSmallSmoke
+inaccuracy: 3
+rotateSpeed: 4
+shootCone: 12
+targetAir: true
+targetGround: true
+ammoTypes: {
+  copper: {
+    type: BasicBulletType
+    speed: 3.5
+    damage: 12
+    width: 7
+    height: 9
+    lifetime: 125
+    frontColor: ffe4a3
+    backColor: ff9b43
+    trailColor: ffad52
+    trailLength: 8
+    trailWidth: 2
+    hitEffect: hitBulletSmall
+    despawnEffect: hitBulletSmall
+  }
+  graphite: {
+    type: BasicBulletType
+    speed: 4.2
+    damage: 18
+    width: 7
+    height: 11
+    lifetime: 100
+    ammoMultiplier: 2
+    frontColor: e5e5e5
+    backColor: 686c76
+    trailColor: 969aa4
+    trailLength: 8
+    trailWidth: 2
+    hitEffect: hitBulletSmall
+    despawnEffect: hitBulletSmall
+  }
+  silicon: {
+    type: BasicBulletType
+    speed: 4
+    damage: 15
+    width: 7
+    height: 9
+    lifetime: 105
+    ammoMultiplier: 2
+    reloadMultiplier: 1.35
+    frontColor: ff9c9c
+    backColor: e34c65
+    trailColor: f05b70
+    trailLength: 9
+    trailWidth: 2
+    hitEffect: hitBulletSmall
+    despawnEffect: hitBulletSmall
+  }
+}
+requirements: [copper/180, lead/140, graphite/90, silicon/65]
+category: turret
+research: neizvesny-sentinel

@@ -1,0 +1,9 @@
+type: Wall
+name: NeizvesnY Bulwark
+description: A large armored wall for protecting critical defenses.
+health: 2100
+armor: 9
+size: 2
+requirements: [copper/55, lead/45, graphite/25]
+category: defense
+research: neizvesny-wall
