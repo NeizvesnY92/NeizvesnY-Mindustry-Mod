@@ -1,6 +1,6 @@
 type: ItemTurret
 name: NeizvesnY Sentinel
-description: A compact defensive turret that fires copper ammunition.
+description: A rapid-fire twin-barrel turret. Accepts copper, graphite, and silicon. Graphite deals more damage; silicon increases fire rate.
 size: 2
 health: 720
 range: 320
