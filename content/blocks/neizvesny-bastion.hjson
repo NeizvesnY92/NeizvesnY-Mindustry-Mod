@@ -4,7 +4,7 @@ description: A heavy long-range twin-barrel turret.
 size: 3
 health: 1600
 range: 400
-reload: 14
+reload: 24
 recoil: 2
 recoilTime: 12
 shootSound: sentinel-nyan
@@ -16,7 +16,7 @@ shoot: {
 }
 shootEffect: shootSmall
 smokeEffect: shootSmallSmoke
-inaccuracy: 3
+inaccuracy: 1
 rotateSpeed: 4
 shootCone: 12
 targetAir: true
@@ -25,7 +25,7 @@ ammoTypes: {
   copper: {
     type: BasicBulletType
     speed: 3.5
-    damage: 12
+    damage: 40
     width: 7
     height: 9
     lifetime: 125
@@ -40,7 +40,9 @@ ammoTypes: {
   graphite: {
     type: BasicBulletType
     speed: 4.2
-    damage: 18
+    damage: 60
+    pierce: true
+    pierceCap: 2
     width: 7
     height: 11
     lifetime: 100
@@ -56,7 +58,7 @@ ammoTypes: {
   silicon: {
     type: BasicBulletType
     speed: 4
-    damage: 15
+    damage: 45
     width: 7
     height: 9
     lifetime: 105
