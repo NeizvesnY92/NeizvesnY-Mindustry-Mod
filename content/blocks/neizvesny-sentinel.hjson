@@ -1,6 +1,6 @@
 type: ItemTurret
 name: NeizvesnY Sentinel
-description: A rapid-fire twin-barrel turret. Accepts copper, graphite, and silicon. Graphite deals more damage; silicon increases fire rate.
+description: A rapid-fire twin-barrel turret. Accepts copper, graphite, and silicon. Graphite deals more damage; silicon increases fire rate and provides mild homing after launch.
 size: 2
 health: 720
 range: 320
@@ -62,6 +62,9 @@ ammoTypes: {
     lifetime: 84
     ammoMultiplier: 2
     reloadMultiplier: 1.35
+    homingPower: 0.04
+    homingRange: 50
+    homingDelay: 8
     frontColor: ff9c9c
     backColor: e34c65
     trailColor: f05b70
