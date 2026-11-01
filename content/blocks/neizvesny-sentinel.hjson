@@ -5,6 +5,7 @@ size: 2
 health: 720
 range: 320
 reload: 9
+maxAmmo: 60
 recoil: 2
 recoilTime: 12
 shootSound: sentinel-nyan
