@@ -47,7 +47,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix="mindustry-check-") as work:
         target = Path(work) / "config/mods/neizvesny"
         target.mkdir(parents=True)
-        for name in ("mod.hjson", "content", "bundles", "sprites", "sounds"):
+        for name in ("mod.hjson", "content", "bundles", "sprites", "sounds", "scripts"):
             src = source / name
             if src.is_dir():
                 shutil.copytree(src, target / name)
