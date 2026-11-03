@@ -20,7 +20,8 @@ try {
       if (node.content == block && node.parent != null) found = true;
     }
     if (!found) throw new Error("Missing research parent: " + names[i]);
-    if (block instanceof ItemTurret) {
+    if (names[i] === "neizvesny-sentinel" || names[i] === "neizvesny-bastion") {
+      if (!(block instanceof ItemTurret)) throw new Error("Expected ItemTurret: " + names[i]);
       var items = [Items.copper, Items.graphite, Items.silicon];
       for (var j = 0; j < items.length; j++) {
         var bullet = block.ammoTypes.get(items[j]);
