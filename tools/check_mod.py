@@ -10,14 +10,26 @@ import tempfile
 CHECK = r'''
 try {
   var prefix = "neizvesny-mindustry-mod-";
-  var names = ["neizvesny-wall", "neizvesny-bulwark", "neizvesny-sentinel", "neizvesny-bastion"];
+  var researchParents = {
+    "neizvesny-wall": "copper-wall",
+    "neizvesny-bulwark": prefix + "neizvesny-wall",
+    "neizvesny-sentinel": "duo",
+    "neizvesny-bastion": prefix + "neizvesny-sentinel"
+  };
+  var names = Object.keys(researchParents);
   for (var i = 0; i < names.length; i++) {
     var block = Vars.content.block(prefix + names[i]);
     if (block == null) throw new Error("Missing block: " + names[i]);
+    var expectedParent = researchParents[names[i]];
     var found = false;
     for (var n = 0; n < TechTree.all.size; n++) {
       var node = TechTree.all.get(n);
-      if (node.content == block && node.parent != null) found = true;
+      if (node.content != block || node.parent == null) continue;
+      var actualParent = String(node.parent.content.name);
+      if (actualParent !== expectedParent)
+        throw new Error("Wrong research parent: " + names[i] + " (expected "
+                        + expectedParent + ", got " + actualParent + ")");
+      found = true;
     }
     if (!found) throw new Error("Missing research parent: " + names[i]);
     if (names[i] === "neizvesny-sentinel" || names[i] === "neizvesny-bastion") {
