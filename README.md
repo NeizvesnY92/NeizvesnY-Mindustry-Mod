@@ -16,3 +16,7 @@ Import the GitHub repository from Mindustry's Mods menu, or download the ZIP and
 ## Status
 
 The original Sentinel and wall are player-tested. The new Bastion and Bulwark reuse existing artwork and still need in-game testing.
+
+## Sentinel optional coolant (test build)
+
+Water and cryofluid speed up Sentinel reload. Dry operation keeps the original reload of 9 ticks. Feed liquid through a conduit. Water adds 20% reload speed, cryofluid 45%; maximum consumption is 6 liquid units/second while cooling. Previous combined improvements and pyratite ammunition are included. Requires iPhone combat and save/load testing before merge.

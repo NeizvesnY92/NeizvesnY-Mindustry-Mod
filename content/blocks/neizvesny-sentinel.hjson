@@ -1,6 +1,13 @@
 type: ItemTurret
 name: NeizvesnY Sentinel
-description: A rapid-fire twin-barrel turret. Accepts copper, graphite, silicon, and pyratite. Pyratite ignites targets on impact. Graphite deals more damage; silicon increases fire rate and provides mild homing after launch.
+description: A rapid-fire twin-barrel turret. Accepts copper, graphite, silicon, and pyratite. Pyratite ignites targets on impact. Graphite deals more damage; silicon increases fire rate and provides mild homing after launch. Optional liquid coolant speeds up reloading; dry operation is unchanged.
+liquidCapacity: 20
+coolantMultiplier: 5
+consumes: {
+  coolant: {
+    amount: 0.1
+  }
+}
 size: 2
 health: 720
 range: 320
