@@ -21,3 +21,11 @@ Validated on 2026-10-31 with official v136: current main passed; a copy with Sen
 This is a content smoke test, not a combat simulation. It does not prove research parent identity, moving-target hit rate, audio, graphics or iPhone compatibility. Future new blocks and ammunition must be added to CHECK in check_mod.py. The script copies the data asset directories and optional scripts directory. JavaScript is executed by the server in the disposable test copy. Use this checker only with trusted mod code: a temporary working directory is not a security sandbox. Other runtime files must be added to the copy list if introduced.
 
 Regression validation (2026-11-02, official v136): a disposable mod copy containing scripts/main.js with `throw new Error("SCRIPT_REGRESSION_SENTINEL");` incorrectly passed the previous checker because scripts were omitted. With scripts copied, the server reports the JavaScript error and the checker exits 1, even though the content marker still says MOD_CHECK_PASS. The unchanged data-only mod still exits 0. No failing script is installed in the real mod.
+
+## Bastion muzzle regression
+
+```sh
+python3 tools/check_muzzles.py /absolute/path/to/server-release.jar
+```
+
+Exercises the actual `TurretBuild.updateTile` shooting path: four ammunition types, six orientations and two consecutive alternating barrels (48 bullets). Compares spawn origins with the barrel centers measured from the unchanged 96x96 Bastion sprite, accounts for native bullet backdating, and checks one charge consumed per shot. No extra Python dependencies. Geometry expectations must be reviewed if the sprite changes. This does not render muzzle flashes, recoil, sound or iPhone graphics.

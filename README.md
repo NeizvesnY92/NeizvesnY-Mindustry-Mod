@@ -26,3 +26,9 @@ Water and cryofluid speed up Sentinel reload. Dry operation keeps the original r
 Feed blast compound to Bastion for explosive shells: 35 direct damage plus up to 35 splash damage (decreases with distance), radius 24 world units / 3 tiles. Hits both air and ground enemies; allies are excluded by the native explosion handler. Each item supplies 2 shots; the existing 30-charge magazine, range 400 and reload 24 ticks remain unchanged. Copper, graphite and silicon retain their existing behavior. Uses native Mindustry effects and the existing pixel sprites.
 
 This branch includes the previous combined improvements, Sentinel pyratite and optional cooling. Run `python3 tools/check_blast.py /absolute/path/to/server-release.jar` for loaded-engine ammunition and explosion checks. Test combat balance, effects, supply/switching and save/load on iPhone before merging.
+
+## Bastion muzzle alignment fix (test build)
+
+Bastion's 96x96 sprite has wider barrel spacing than the old shot pattern. Shot origins and muzzle flashes now align with the two existing barrel tips: `shootX: 0.5625`, `shootY: 10.5`, alternate spread `7.625` world units. No artwork, ammunition, damage, range, reload or sound changes. Previous test-branch features remain included.
+
+Run `python3 tools/check_muzzles.py /absolute/path/to/server-release.jar` to exercise actual shots with all four ammunition types at six rotations. Version `0.2-test-muzzles-20261108` stays in `daily/bastion-shot-origin-20261108` pending an iPhone visual/combat check. See `docs/bastion-muzzles-validation.md`.
