@@ -1,6 +1,6 @@
 type: ItemTurret
 name: NeizvesnY Bastion
-description: A heavy long-range twin-barrel turret. Blast compound shells damage groups with a small explosion; other ammunition remains available.
+description: A heavy long-range twin-barrel turret. Thorium rounds ignore unit armor; blast compound shells damage groups with a small explosion.
 size: 3
 health: 1600
 range: 400
@@ -71,6 +71,23 @@ ammoTypes: {
     backColor: e34c65
     trailColor: f05b70
     trailLength: 9
+    trailWidth: 2
+    hitEffect: hitBulletSmall
+    despawnEffect: hitBulletSmall
+  }
+  thorium: {
+    type: BasicBulletType
+    speed: 4.2
+    damage: 60
+    pierceArmor: true
+    ammoMultiplier: 2
+    width: 7
+    height: 11
+    lifetime: 100
+    frontColor: ffe5f5
+    backColor: f9a3c7
+    trailColor: f9a3c7
+    trailLength: 8
     trailWidth: 2
     hitEffect: hitBulletSmall
     despawnEffect: hitBulletSmall

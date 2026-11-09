@@ -28,4 +28,13 @@ Regression validation (2026-11-02, official v136): a disposable mod copy contain
 python3 tools/check_muzzles.py /absolute/path/to/server-release.jar
 ```
 
-Exercises the actual `TurretBuild.updateTile` shooting path: four ammunition types, six orientations and two consecutive alternating barrels (48 bullets). Compares spawn origins with the barrel centers measured from the unchanged 96x96 Bastion sprite, accounts for native bullet backdating, and checks one charge consumed per shot. No extra Python dependencies. Geometry expectations must be reviewed if the sprite changes. This does not render muzzle flashes, recoil, sound or iPhone graphics.
+Exercises the actual `TurretBuild.updateTile` shooting path: five ammunition types, six orientations and two consecutive alternating barrels (60 bullets). Compares spawn origins with the barrel centers measured from the unchanged 96x96 Bastion sprite, accounts for native bullet backdating, and checks one charge consumed per shot. No extra Python dependencies. Geometry expectations must be reviewed if the sprite changes. This does not render muzzle flashes, recoil, sound or iPhone graphics.
+
+
+## Bastion thorium ammunition
+
+```sh
+python3 tools/check_thorium.py /absolute/path/to/server-release.jar
+```
+
+Checks native ammo acceptance, full capacity, consumption, switching, mixed-ammo state serialization, damage against synthetic ground/air units with 0 and 30 armor, a graphite control, and removal after one actual unit collision. Uses an existing official v136 server JAR. Serialization uses the building's native write/read methods in memory; it is not a full world save/load or an iPhone test.

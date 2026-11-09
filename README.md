@@ -7,7 +7,7 @@
 - NeizvesnY Sentinel: 2x2 fast twin-barrel turret, 320 range.
 - NeizvesnY Bastion: 3x3 heavy twin-barrel turret, 400 range.
 
-Both turrets accept copper, graphite, and silicon. Graphite is stronger; silicon boosts fire rate. Sentinel also accepts pyratite; Bastion also accepts blast compound.
+Both turrets accept copper, graphite, and silicon. Graphite is stronger; silicon boosts fire rate. Sentinel also accepts pyratite; Bastion also accepts blast compound and thorium.
 
 ## Install
 
@@ -32,3 +32,10 @@ This branch includes the previous combined improvements, Sentinel pyratite and o
 Bastion's 96x96 sprite has wider barrel spacing than the old shot pattern. Shot origins and muzzle flashes now align with the two existing barrel tips: `shootX: 0.5625`, `shootY: 10.5`, alternate spread `7.625` world units. No artwork, ammunition, damage, range, reload or sound changes. Previous test-branch features remain included.
 
 Run `python3 tools/check_muzzles.py /absolute/path/to/server-release.jar` to exercise actual shots with all four ammunition types at six rotations. Version `0.2-test-muzzles-20261108` stays in `daily/bastion-shot-origin-20261108` pending an iPhone visual/combat check. See `docs/bastion-muzzles-validation.md`.
+
+
+## Bastion thorium ammunition (test build)
+
+Thorium rounds deal 60 direct damage and ignore **unit armor**, using native v136 `pierceArmor`. They stop on the first target: no multi-target penetration, splash, homing or fire. Graphite retains its existing two-unit penetration role. One thorium supplies 2 shots; 15 items fill Bastion's unchanged 30-charge magazine. Speed 4.2, lifetime 100, computed range 420, normal reload multiplier 1. Turret range 400 and reload 24 remain unchanged. Thorium tracers use Mindustry's familiar pink thorium palette; all pixel sprites and sounds are preserved.
+
+`daily/bastion-thorium-20261109` / version `0.2-test-thorium-20261109` includes all previous test-branch work, including corrected Bastion muzzle positions. Run `python3 tools/check_thorium.py /absolute/path/to/server-release.jar`. Armor bypass is verified for unit hits; no building-armor or shield bypass is promised. Requires iPhone combat/balance and save/load checks before merge. See `docs/bastion-thorium-validation.md`.

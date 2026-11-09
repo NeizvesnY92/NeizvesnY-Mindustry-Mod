@@ -36,7 +36,7 @@ try {
       if (!(block instanceof ItemTurret)) throw new Error("Expected ItemTurret: " + names[i]);
       var items = [Items.copper, Items.graphite, Items.silicon];
       if (names[i] === "neizvesny-sentinel") items.push(Items.pyratite);
-      if (names[i] === "neizvesny-bastion") items.push(Items.blastCompound);
+      if (names[i] === "neizvesny-bastion") items.push(Items.blastCompound, Items.thorium);
       for (var j = 0; j < items.length; j++) {
         var bullet = block.ammoTypes.get(items[j]);
         if (bullet == null) throw new Error("Missing ammo: " + names[i] + "/" + items[j].name);

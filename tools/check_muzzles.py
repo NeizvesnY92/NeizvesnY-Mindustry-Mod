@@ -8,7 +8,7 @@ try {
  /* Sprite pixel boundaries: barrels x=[27,43), [57,74), top y=6. */
  /* 4 pixels/world unit; texture origin (48,48). Centers: 35,65.5. */
  var muzzleX=[-3.25,4.375], muzzleY=10.5;
- var items=[Items.copper,Items.graphite,Items.silicon,Items.blastCompound];
+ var items=[Items.copper,Items.graphite,Items.silicon,Items.blastCompound,Items.thorium];
  var rotations=[0,45,90,180,225,270];
  Time.delta=1;
  for(var a=0;a<items.length;a++) {
@@ -41,7 +41,7 @@ try {
    }
  }
  Groups.bullet.clear();
- print("MOD_CHECK_PASS: 48 actual Bastion shots, both sprite muzzles, six rotations, four ammo types and consumption verified");
+ print("MOD_CHECK_PASS: 60 actual Bastion shots, both sprite muzzles, six rotations, five ammo types and consumption verified");
 } catch(error) { print("MOD_CHECK_FAIL: "+error); }
 '''
 
