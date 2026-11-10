@@ -38,3 +38,12 @@ python3 tools/check_thorium.py /absolute/path/to/server-release.jar
 ```
 
 Checks native ammo acceptance, full capacity, consumption, switching, mixed-ammo state serialization, damage against synthetic ground/air units with 0 and 30 armor, a graphite control, and removal after one actual unit collision. Uses an existing official v136 server JAR. Serialization uses the building's native write/read methods in memory; it is not a full world save/load or an iPhone test.
+
+
+## Bulwark bullet deflection
+
+```sh
+python3 tools/check_deflection.py /absolute/path/to/server-release.jar
+```
+
+Places Bulwark in a synthetic world and invokes its native collision handler. Checks reversed velocity, team/owner transfer, damage to the wall and an enemy unit, allied-unit filtering, unreflectable/slow exclusions, mixed outcomes for strong shots with a fixed RNG seed, phase fabric cost and retained defenses. This is a headless engine check, not a rendered combat session or full save/load.
