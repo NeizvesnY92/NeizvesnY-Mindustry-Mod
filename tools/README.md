@@ -47,3 +47,12 @@ python3 tools/check_deflection.py /absolute/path/to/server-release.jar
 ```
 
 Places Bulwark in a synthetic world and invokes its native collision handler. Checks reversed velocity, team/owner transfer, damage to the wall and an enemy unit, allied-unit filtering, unreflectable/slow exclusions, mixed outcomes for strong shots with a fixed RNG seed, phase fabric cost and retained defenses. This is a headless engine check, not a rendered combat session or full save/load.
+
+
+## Sentinel graphite impact
+
+```sh
+python3 tools/check_impact.py /absolute/path/to/server-release.jar
+```
+
+Exercises the native hit handler at four angles on Dagger, Fortress and Flare, checks damage and mass-dependent velocity, and invokes one actual projectile collision. Off-axis placement distinguishes flight-directed impact from radial knockback. Other ammo serves as zero-knockback controls; the magazine check verifies unchanged economy. These are synthetic engine cases, not autonomous combat or iPhone tests.

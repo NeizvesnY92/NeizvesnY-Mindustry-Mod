@@ -46,3 +46,10 @@ Thorium rounds deal 60 direct damage and ignore **unit armor**, using native v13
 Bulwark can now reflect ordinary moving projectiles using the native v136 Wall mechanic, `chanceDeflect: 10`. Probability is `min(1, 10 / incoming bullet damage)`: for example, 50% at 20 damage and 10% at 100 damage under default damage rules. Bullets moving at 0.1 world units/tick or less and types marked unreflectable are excluded. A reflected bullet changes to the wall's team and reverses one velocity component; the wall still takes its normal collision damage. This does not grant immunity to bullets or general laser reflection.
 
 The extra construction cost is **8 phase fabric**. Existing copper/lead/graphite/plastanium requirements, 2100 health, 9 armor, lightning insulation and compatible-laser absorption remain unchanged. All artwork, sounds and other blocks are preserved. Version `0.2-test-deflection-20261110` in `daily/bulwark-deflection-20261110` includes all preceding test-branch work. Run `python3 tools/check_deflection.py /absolute/path/to/server-release.jar`; see `docs/bulwark-deflection-validation.md`. Keep separate from main until iPhone combat, cost/balance and save/load testing.
+
+
+## Sentinel graphite impact (test build)
+
+Graphite rounds now apply a small native knockback impulse: `knockback: 0.3`, `impact: true`. Impact directs the impulse along bullet flight rather than the separation vector at contact; unit mass reduces the resulting velocity change. This is intended to help against advancing light units, not to immobilize enemies. Damage 18, speed 4.2, lifetime 80, ammo multiplier 2, range, reload and other ammunition are unchanged. Building targets receive no unit impulse. All pixel sprites and sounds are preserved.
+
+Version `0.2-test-impact-20261111` in `daily/sentinel-graphite-impact-20261111` includes all preceding test-branch work. Run `python3 tools/check_impact.py /absolute/path/to/server-release.jar`; see `docs/sentinel-impact-validation.md`. Requires iPhone combat/balance, effects and save/load testing before merge.
