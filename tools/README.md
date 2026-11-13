@@ -65,3 +65,13 @@ python3 tools/check_assets.py
 ```
 
 No Mindustry JAR or third-party Python package is required. The checker reads PNG IHDR dimensions directly and verifies that each block sprite and each required turret base sprite is exactly 32 times the block size in pixels. It also checks that every block has a name and description key in both `bundle_ru.properties` and `bundle_ru_RU.properties`. This catches undersized or missing textures and incomplete Russian localization before import; it does not render the atlas or prove the in-game appearance.
+
+## PNG structure regression tests
+
+Run:
+
+```sh
+python3 -m unittest discover -s tools -p "test_*.py"
+```
+
+The asset checker validates PNG chunk order, IHDR fields, per-chunk CRCs, consecutive IDAT chunks, a non-empty image-data section, a final empty IEND chunk, and the absence of trailing bytes. The regression tests include a valid fixture and malformed/truncated cases. This remains a structural check; it does not decode pixels or render Mindustry's texture atlas.
