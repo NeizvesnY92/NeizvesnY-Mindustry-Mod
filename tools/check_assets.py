@@ -309,7 +309,7 @@ def main() -> int:
             print(f"FAIL: {error}")
         return 1
 
-    print(f"MOD_ASSETS_PASS: {len(definitions)} block sprites and Russian localization bundles")
+    print(f"MOD_ASSETS_PASS: {len(definitions)} block sprites, decoded PNG scanlines and Russian localization bundles")
     return 0
 
 

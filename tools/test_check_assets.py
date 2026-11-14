@@ -47,6 +47,30 @@ class PngValidationTests(unittest.TestCase):
                 + chunk(b"IDAT", compressed[3:]) + chunk(b"IEND", b""))
         self.assertEqual(self.check_bytes(data), (1, 1))
 
+    def test_valid_adam7_multi_pass_png(self):
+        raw = (
+            b"\x00\x10\x20\x30\xff"
+            b"\x00\x40\x50\x60\xff"
+            b"\x00\x70\x80\x90\xff\xa0\xb0\xc0\xff"
+        )
+        self.assertEqual(
+            self.check_bytes(png_bytes(raw=raw, width=2, height=2, interlace=1)),
+            (2, 2),
+        )
+
+    def test_valid_indexed_png_with_palette(self):
+        self.assertEqual(
+            self.check_bytes(
+                png_bytes(
+                    raw=b"\x00\x00",
+                    bit_depth=1,
+                    color_type=3,
+                    palette=b"\x00\x00\x00\xff\xff\xff",
+                )
+            ),
+            (1, 1),
+        )
+
     def test_rejects_header_only_file(self):
         data = PNG_SIGNATURE + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
         with self.assertRaisesRegex(ValueError, "truncated PNG chunk header"):
