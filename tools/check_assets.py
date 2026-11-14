@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Mindustry block sprite footprints and required Russian localization."""
+"""Validate Mindustry block sprite footprints, decoded PNG scanlines and Russian localization."""
 
 import argparse
 import re
@@ -12,6 +12,15 @@ from typing import List, Optional, Set, Tuple
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 TILE_PIXELS = 32
 PNG_CHUNK_LIMIT = 64 * 1024
+MAX_COMPRESSED_BYTES = 64 * 1024 * 1024
+MAX_DECODED_BYTES = 64 * 1024 * 1024
+
+# Adam7 pass geometry: (x start, y start, x step, y step).
+ADAM7_PASSES = (
+    (0, 0, 8, 8), (4, 0, 8, 8), (0, 4, 4, 8), (2, 0, 4, 4),
+    (0, 2, 2, 4), (1, 0, 2, 2), (0, 1, 1, 2),
+)
+CHANNELS = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}
 
 
 def read_exact(stream, size: int, label: str) -> bytes:
@@ -21,24 +30,81 @@ def read_exact(stream, size: int, label: str) -> bytes:
     return data
 
 
-def read_chunk_payload(stream, chunk_type: bytes, length: int) -> None:
-    """Consume a chunk without loading large ancillary chunks into memory."""
+def read_chunk_payload(stream, chunk_type: bytes, length: int, capture: bool = False):
+    """Consume and CRC-check one chunk; optionally return its payload."""
     checksum = zlib.crc32(chunk_type)
     remaining = length
+    payload = bytearray() if capture else None
     while remaining:
         data = stream.read(min(PNG_CHUNK_LIMIT, remaining))
         if not data:
-            raise ValueError(
-                f"truncated PNG {chunk_type.decode('ascii', errors='replace')} chunk data"
-            )
+            label = chunk_type.decode("ascii", errors="replace")
+            raise ValueError(f"truncated PNG {label} chunk data")
         checksum = zlib.crc32(data, checksum)
+        if capture:
+            payload.extend(data)
         remaining -= len(data)
-
     expected = struct.unpack(">I", read_exact(stream, 4, "chunk CRC"))[0]
     if checksum & 0xFFFFFFFF != expected:
+        label = chunk_type.decode("ascii", errors="replace")
+        raise ValueError(f"PNG {label} chunk CRC mismatch")
+    return bytes(payload) if capture else None
+
+
+def pass_dimensions(width: int, height: int, geometry: Tuple[int, int, int, int]):
+    x_start, y_start, x_step, y_step = geometry
+    pass_width = 0 if width <= x_start else (width - x_start + x_step - 1) // x_step
+    pass_height = 0 if height <= y_start else (height - y_start + y_step - 1) // y_step
+    return pass_width, pass_height
+
+
+def scanline_layout(width: int, height: int, bits_per_pixel: int, interlace: int):
+    geometries = ((0, 0, 1, 1),) if interlace == 0 else ADAM7_PASSES
+    total = 0
+    rows = []
+    for geometry in geometries:
+        pass_width, pass_height = pass_dimensions(width, height, geometry)
+        if pass_width == 0 or pass_height == 0:
+            continue
+        row_bytes = (pass_width * bits_per_pixel + 7) // 8
+        total += pass_height * (row_bytes + 1)
+        rows.append((pass_height, row_bytes))
+    return total, rows
+
+
+def validate_image_data(compressed: bytes, width: int, height: int,
+                        bit_depth: int, color_type: int, interlace: int) -> None:
+    bits_per_pixel = bit_depth * CHANNELS[color_type]
+    expected_size, rows = scanline_layout(width, height, bits_per_pixel, interlace)
+    if expected_size > MAX_DECODED_BYTES:
         raise ValueError(
-            f"PNG {chunk_type.decode('ascii', errors='replace')} chunk CRC mismatch"
+            f"PNG decoded image exceeds the {MAX_DECODED_BYTES}-byte validation limit"
         )
+    try:
+        decoder = zlib.decompressobj()
+        decoded = decoder.decompress(compressed, expected_size + 1)
+        if len(decoded) > expected_size or decoder.unconsumed_tail:
+            raise ValueError("PNG image data expands beyond the expected scanline size")
+        if not decoder.eof:
+            raise ValueError("PNG IDAT zlib stream is truncated")
+        if decoder.unused_data:
+            raise ValueError("PNG IDAT contains bytes after the zlib stream")
+        decoded += decoder.flush()
+    except zlib.error as error:
+        raise ValueError(f"PNG IDAT zlib stream is invalid: {error}") from error
+    if len(decoded) != expected_size:
+        raise ValueError(
+            f"PNG decoded scanline data has {len(decoded)} bytes; expected {expected_size}"
+        )
+    offset = 0
+    for pass_rows, row_bytes in rows:
+        for _ in range(pass_rows):
+            filter_type = decoded[offset]
+            if filter_type > 4:
+                raise ValueError(f"PNG scanline uses invalid filter type {filter_type}")
+            offset += row_bytes + 1
+    if offset != len(decoded):
+        raise ValueError("PNG scanline layout does not consume all decoded image data")
 
 
 def png_dimensions(path: Path) -> Tuple[int, int]:
@@ -53,6 +119,7 @@ def png_dimensions(path: Path) -> Tuple[int, int]:
         seen_idat = False
         idat_ended = False
         idat_bytes = 0
+        compressed = bytearray()
 
         while True:
             header = read_exact(stream, 8, "chunk header")
@@ -99,12 +166,18 @@ def png_dimensions(path: Path) -> Tuple[int, int]:
                     raise ValueError("PNG has an invalid or misplaced PLTE chunk")
                 if color_type in (0, 4):
                     raise ValueError("PNG color type does not permit a PLTE chunk")
+                if color_type == 3 and length // 3 > (1 << bit_depth):
+                    raise ValueError("indexed PNG palette has more entries than its bit depth permits")
                 seen_plte = True
             elif chunk_type == b"IDAT":
                 if idat_ended:
                     raise ValueError("PNG IDAT chunks must be consecutive")
                 seen_idat = True
                 idat_bytes += length
+                if idat_bytes > MAX_COMPRESSED_BYTES:
+                    raise ValueError(
+                        f"PNG compressed image exceeds the {MAX_COMPRESSED_BYTES}-byte validation limit"
+                    )
             else:
                 if seen_idat:
                     idat_ended = True
@@ -118,13 +191,20 @@ def png_dimensions(path: Path) -> Tuple[int, int]:
                         raise ValueError("PNG contains data after IEND")
                     if color_type == 3 and not seen_plte:
                         raise ValueError("indexed PNG is missing its PLTE palette")
+                    validate_image_data(
+                        bytes(compressed), width, height, bit_depth, color_type, interlace
+                    )
                     return width, height
                 if chunk_type[0] & 0x20 == 0 and chunk_type != b"PLTE":
                     raise ValueError(
                         f"PNG contains unknown critical chunk {chunk_type.decode('ascii')}"
                     )
 
-            read_chunk_payload(stream, chunk_type, length)
+            payload = read_chunk_payload(
+                stream, chunk_type, length, capture=chunk_type == b"IDAT"
+            )
+            if chunk_type == b"IDAT":
+                compressed.extend(payload)
 
 
 def top_level_value(text: str, field: str) -> Optional[str]:

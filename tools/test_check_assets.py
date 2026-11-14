@@ -12,15 +12,19 @@ def chunk(kind, payload):
     return struct.pack(">I", len(payload)) + kind + payload + struct.pack(">I", checksum)
 
 
+def png_bytes(raw=b"\x00\x20\x40\x60\xff", width=1, height=1,
+              bit_depth=8, color_type=6, interlace=0, palette=None, compressed=None):
+    ihdr = struct.pack(">IIBBBBB", width, height, bit_depth, color_type, 0, 0, interlace)
+    if compressed is None:
+        compressed = zlib.compress(raw)
+    result = PNG_SIGNATURE + chunk(b"IHDR", ihdr)
+    if palette is not None:
+        result += chunk(b"PLTE", palette)
+    return result + chunk(b"IDAT", compressed) + chunk(b"IEND", b"")
+
+
 def valid_png():
-    ihdr = struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0)
-    pixels = zlib.compress(b"\x00\x20\x40\x60\xff")
-    return (
-        PNG_SIGNATURE
-        + chunk(b"IHDR", ihdr)
-        + chunk(b"IDAT", pixels)
-        + chunk(b"IEND", b"")
-    )
+    return png_bytes()
 
 
 class PngValidationTests(unittest.TestCase):
@@ -33,10 +37,18 @@ class PngValidationTests(unittest.TestCase):
     def test_valid_png(self):
         self.assertEqual(self.check_bytes(valid_png()), (1, 1))
 
+    def test_valid_adam7_png(self):
+        self.assertEqual(self.check_bytes(png_bytes(interlace=1)), (1, 1))
+
+    def test_accepts_split_consecutive_idat_chunks(self):
+        ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
+        compressed = zlib.compress(b"\x00\x20\x40\x60\xff")
+        data = (PNG_SIGNATURE + ihdr + chunk(b"IDAT", compressed[:3])
+                + chunk(b"IDAT", compressed[3:]) + chunk(b"IEND", b""))
+        self.assertEqual(self.check_bytes(data), (1, 1))
+
     def test_rejects_header_only_file(self):
-        data = PNG_SIGNATURE + chunk(
-            b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0)
-        )
+        data = PNG_SIGNATURE + chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
         with self.assertRaisesRegex(ValueError, "truncated PNG chunk header"):
             self.check_bytes(data)
 
@@ -52,26 +64,57 @@ class PngValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "truncated PNG chunk header"):
             self.check_bytes(data[:-len(iend)])
 
-    def test_rejects_trailing_data(self):
+    def test_rejects_trailing_png_data(self):
         with self.assertRaisesRegex(ValueError, "data after IEND"):
             self.check_bytes(valid_png() + b"junk")
 
     def test_rejects_nonconsecutive_idat(self):
         ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
         image_data = zlib.compress(b"\x00\x20\x40\x60\xff")
-        data = (
-            PNG_SIGNATURE + ihdr + chunk(b"IDAT", image_data[:2])
-            + chunk(b"tEXt", b"note\x00split")
-            + chunk(b"IDAT", image_data[2:]) + chunk(b"IEND", b"")
-        )
+        data = (PNG_SIGNATURE + ihdr + chunk(b"IDAT", image_data[:2])
+                + chunk(b"tEXt", b"note\x00split")
+                + chunk(b"IDAT", image_data[2:]) + chunk(b"IEND", b""))
         with self.assertRaisesRegex(ValueError, "IDAT chunks must be consecutive"):
             self.check_bytes(data)
 
     def test_rejects_duplicate_ihdr(self):
         ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 6, 0, 0, 0))
-        data = PNG_SIGNATURE + ihdr + ihdr
         with self.assertRaisesRegex(ValueError, "exactly one 13-byte IHDR"):
-            self.check_bytes(data)
+            self.check_bytes(PNG_SIGNATURE + ihdr + ihdr)
+
+    def test_rejects_corrupt_zlib_checksum_even_with_valid_png_crc(self):
+        compressed = bytearray(zlib.compress(b"\x00\x20\x40\x60\xff"))
+        compressed[-1] ^= 0x01
+        with self.assertRaisesRegex(ValueError, "zlib stream is invalid"):
+            self.check_bytes(png_bytes(compressed=bytes(compressed)))
+
+    def test_rejects_truncated_zlib_stream_even_with_valid_png_crc(self):
+        compressed = zlib.compress(b"\x00\x20\x40\x60\xff")[:-2]
+        with self.assertRaisesRegex(ValueError, "zlib stream is truncated"):
+            self.check_bytes(png_bytes(compressed=compressed))
+
+    def test_rejects_invalid_scanline_filter(self):
+        with self.assertRaisesRegex(ValueError, "invalid filter type 5"):
+            self.check_bytes(png_bytes(raw=b"\x05\x20\x40\x60\xff"))
+
+    def test_rejects_wrong_decompressed_scanline_length(self):
+        with self.assertRaisesRegex(ValueError, "expected 5"):
+            self.check_bytes(png_bytes(raw=b"\x00\x20"))
+
+    def test_rejects_trailing_bytes_after_zlib_stream(self):
+        compressed = zlib.compress(b"\x00\x20\x40\x60\xff") + b"extra"
+        with self.assertRaisesRegex(ValueError, "bytes after the zlib stream"):
+            self.check_bytes(png_bytes(compressed=compressed))
+
+    def test_rejects_indexed_png_without_palette(self):
+        with self.assertRaisesRegex(ValueError, "missing its PLTE palette"):
+            self.check_bytes(png_bytes(raw=b"\x00\x00", bit_depth=1, color_type=3))
+
+    def test_rejects_palette_larger_than_index_bit_depth(self):
+        palette = b"\x00\x00\x00" * 3
+        with self.assertRaisesRegex(ValueError, "more entries than its bit depth"):
+            self.check_bytes(png_bytes(raw=b"\x00\x00", bit_depth=1,
+                                       color_type=3, palette=palette))
 
 
 if __name__ == "__main__":
