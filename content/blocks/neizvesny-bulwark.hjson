@@ -1,9 +1,12 @@
 type: Wall
 name: NeizvesnY Bulwark
-description: A large armored wall for protecting critical defenses.
+description: A large armored wall. Insulates lightning, absorbs compatible lasers and can reflect ordinary bullets. Stronger shots are less likely to reflect. Requires plastanium and phase fabric.
 health: 2100
 armor: 9
 size: 2
-requirements: [copper/55, lead/45, graphite/25]
+insulated: true
+absorbLasers: true
+chanceDeflect: 10
+requirements: [copper/55, lead/45, graphite/25, plastanium/20, phase-fabric/8]
 category: defense
 research: neizvesny-wall

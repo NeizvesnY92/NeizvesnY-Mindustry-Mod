@@ -1,0 +1,65 @@
+name: Validate Mindustry v136 runtime
+
+on:
+  push:
+    branches:
+      - main
+      - "daily/**"
+      - "test/**"
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  headless-v136:
+    name: Load mod and exercise native v136 mechanics
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out mod
+        uses: actions/checkout@v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download and verify official Mindustry v136 server
+        shell: bash
+        run: |
+          set -euo pipefail
+          jar="$RUNNER_TEMP/server-release.jar"
+          curl --fail --location --retry 3 --retry-all-errors \
+            "https://github.com/Anuken/Mindustry/releases/download/v136/server-release.jar" \
+            --output "$jar"
+          echo "67700395c408d12703ee6ebd26fe3d75c81dbcb1c2a1cdbaa48654da1c7e7067  $jar" | sha256sum --check
+
+      - name: Run loaded-content and ammunition checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          jar="$RUNNER_TEMP/server-release.jar"
+          for check in \
+            tools/check_mod.py \
+            tools/check_pyratite.py \
+            tools/check_cooling.py \
+            tools/check_blast.py \
+            tools/check_muzzles.py \
+            tools/check_thorium.py \
+            tools/check_deflection.py \
+            tools/check_impact.py; do
+            echo "::group::$check"
+            python3 "$check" "$jar"
+            echo "::endgroup::"
+          done
+
+      - name: Run PNG parser regression tests
+        run: python3 -m unittest discover -s tools -p "test_*.py"
+
+      - name: Validate sprite footprints and Russian localization
+        run: python3 tools/check_assets.py

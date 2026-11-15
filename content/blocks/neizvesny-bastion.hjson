@@ -1,22 +1,25 @@
 type: ItemTurret
 name: NeizvesnY Bastion
-description: A heavy long-range twin-barrel turret.
+description: A heavy long-range twin-barrel turret. Thorium rounds ignore unit armor; blast compound shells damage groups with a small explosion.
 size: 3
 health: 1600
 range: 400
-reload: 14
+reload: 24
 recoil: 2
 recoilTime: 12
+# Match the two muzzle centers in the 96x96 sprite (4 pixels per world unit).
+shootX: 0.5625
+shootY: 10.5
 shootSound: sentinel-nyan
 shoot: {
   type: ShootAlternate
   barrels: 2
-  spread: 5
+  spread: 7.625
   shots: 1
 }
 shootEffect: shootSmall
 smokeEffect: shootSmallSmoke
-inaccuracy: 3
+inaccuracy: 1
 rotateSpeed: 4
 shootCone: 12
 targetAir: true
@@ -25,7 +28,7 @@ ammoTypes: {
   copper: {
     type: BasicBulletType
     speed: 3.5
-    damage: 12
+    damage: 40
     width: 7
     height: 9
     lifetime: 125
@@ -40,7 +43,9 @@ ammoTypes: {
   graphite: {
     type: BasicBulletType
     speed: 4.2
-    damage: 18
+    damage: 60
+    pierce: true
+    pierceCap: 2
     width: 7
     height: 11
     lifetime: 100
@@ -56,7 +61,7 @@ ammoTypes: {
   silicon: {
     type: BasicBulletType
     speed: 4
-    damage: 15
+    damage: 45
     width: 7
     height: 9
     lifetime: 105
@@ -69,6 +74,41 @@ ammoTypes: {
     trailWidth: 2
     hitEffect: hitBulletSmall
     despawnEffect: hitBulletSmall
+  }
+  thorium: {
+    type: BasicBulletType
+    speed: 4.2
+    damage: 60
+    pierceArmor: true
+    ammoMultiplier: 2
+    width: 7
+    height: 11
+    lifetime: 100
+    frontColor: ffe5f5
+    backColor: f9a3c7
+    trailColor: f9a3c7
+    trailLength: 8
+    trailWidth: 2
+    hitEffect: hitBulletSmall
+    despawnEffect: hitBulletSmall
+  }
+  blast-compound: {
+    type: BasicBulletType
+    speed: 3.5
+    damage: 35
+    splashDamage: 35
+    splashDamageRadius: 24
+    ammoMultiplier: 2
+    width: 9
+    height: 12
+    lifetime: 125
+    frontColor: ffe4a3
+    backColor: ff9b43
+    trailColor: ffad52
+    trailLength: 8
+    trailWidth: 2
+    hitEffect: blastExplosion
+    despawnEffect: blastExplosion
   }
 }
 requirements: [copper/180, lead/140, graphite/90, silicon/65]

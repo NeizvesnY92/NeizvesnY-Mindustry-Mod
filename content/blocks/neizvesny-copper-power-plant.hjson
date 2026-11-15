@@ -1,0 +1,23 @@
+type: ConsumeGenerator
+name: NeizvesnY Copper Power Plant
+description: A high-output generator fueled exclusively by copper. One copper powers it for 120 ticks.
+size: 3
+health: 1100
+itemCapacity: 20
+powerProduction: 4.0
+itemDuration: 120
+warmupSpeed: 0.04
+effectChance: 0.04
+generateEffect: generatespark
+generateEffectRange: 45
+baseLightRadius: 50
+ambientSound: loopSmelter
+ambientSoundVolume: 0.08
+hasItems: true
+outputsPower: true
+consumes: {
+  items: [copper/1]
+}
+requirements: [copper/160, lead/120, graphite/80, silicon/45]
+category: power
+research: combustion-generator

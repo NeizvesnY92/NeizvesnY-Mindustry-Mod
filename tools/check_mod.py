@@ -14,7 +14,8 @@ try {
     "neizvesny-wall": "copper-wall",
     "neizvesny-bulwark": prefix + "neizvesny-wall",
     "neizvesny-sentinel": "duo",
-    "neizvesny-bastion": prefix + "neizvesny-sentinel"
+    "neizvesny-bastion": prefix + "neizvesny-sentinel",
+    "neizvesny-copper-power-plant": "combustion-generator"
   };
   var names = Object.keys(researchParents);
   for (var i = 0; i < names.length; i++) {
@@ -32,9 +33,19 @@ try {
       found = true;
     }
     if (!found) throw new Error("Missing research parent: " + names[i]);
+    if (names[i] === "neizvesny-copper-power-plant") {
+      if (!(block instanceof ConsumeGenerator))
+        throw new Error("Expected ConsumeGenerator: " + names[i]);
+      if (Math.abs(block.powerProduction - 4.0) > 0.001)
+        throw new Error("Wrong generator output: expected 4.0 power/tick, got " + block.powerProduction);
+      if (Math.abs(block.itemDuration - 120.0) > 0.001)
+        throw new Error("Wrong copper burn duration: expected 120 ticks, got " + block.itemDuration);
+    }
     if (names[i] === "neizvesny-sentinel" || names[i] === "neizvesny-bastion") {
       if (!(block instanceof ItemTurret)) throw new Error("Expected ItemTurret: " + names[i]);
       var items = [Items.copper, Items.graphite, Items.silicon];
+      if (names[i] === "neizvesny-sentinel") items.push(Items.pyratite);
+      if (names[i] === "neizvesny-bastion") items.push(Items.blastCompound, Items.thorium);
       for (var j = 0; j < items.length; j++) {
         var bullet = block.ammoTypes.get(items[j]);
         if (bullet == null) throw new Error("Missing ammo: " + names[i] + "/" + items[j].name);
