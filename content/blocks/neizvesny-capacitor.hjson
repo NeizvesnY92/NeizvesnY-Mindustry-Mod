@@ -1,0 +1,12 @@
+type: Battery
+name: NeizvesnY Capacitor
+description: A compact 2x2 power battery. Stores up to 12,000 power units and feeds the connected grid when generation falls short.
+size: 2
+health: 800
+baseExplosiveness: 2
+consumes: {
+  powerBuffered: 12000
+}
+requirements: [copper/90, lead/70, graphite/35, silicon/20]
+category: power
+research: neizvesny-copper-power-plant

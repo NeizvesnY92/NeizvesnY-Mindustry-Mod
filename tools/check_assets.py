@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Mindustry block sprite footprints, decoded PNG scanlines and Russian localization."""
+"""Validate Mindustry block sprites, battery overlays, decoded PNG scanlines and Russian localization."""
 
 import argparse
 import re
@@ -224,6 +224,19 @@ def property_keys(path: Path) -> Set[str]:
     return keys
 
 
+def required_sprite_paths(root: Path, stem: str, block_type: Optional[str],
+                          requires_base: bool) -> List[Path]:
+    """Return the sprite layers required by a block's native renderer."""
+    sprite_dir = root / "sprites" / "blocks"
+    paths = [sprite_dir / f"{stem}.png"]
+    base_sprite = sprite_dir / f"{stem}-base.png"
+    if requires_base or base_sprite.exists():
+        paths.append(base_sprite)
+    if block_type == "Battery":
+        paths.append(sprite_dir / f"{stem}-top.png")
+    return paths
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -265,12 +278,9 @@ def main() -> int:
             errors.append(f"{definition.relative_to(root)}: missing top-level description")
 
         expected = int(raw_size) * TILE_PIXELS
-        sprite_paths = [root / "sprites" / "blocks" / f"{stem}.png"]
-        base_sprite = root / "sprites" / "blocks" / f"{stem}-base.png"
         block_type = top_level_value(text, "type")
         requires_base = block_type == "ItemTurret" and top_level_value(text, "hasBase") != "false"
-        if requires_base or base_sprite.exists():
-            sprite_paths.append(base_sprite)
+        sprite_paths = required_sprite_paths(root, stem, block_type, requires_base)
 
         for sprite in sprite_paths:
             rel = sprite.relative_to(root)

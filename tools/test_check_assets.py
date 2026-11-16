@@ -4,7 +4,7 @@ import unittest
 import zlib
 from pathlib import Path
 
-from check_assets import PNG_SIGNATURE, png_dimensions
+from check_assets import PNG_SIGNATURE, png_dimensions, required_sprite_paths
 
 
 def chunk(kind, payload):
@@ -139,6 +139,28 @@ class PngValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "more entries than its bit depth"):
             self.check_bytes(png_bytes(raw=b"\x00\x00", bit_depth=1,
                                        color_type=3, palette=palette))
+
+
+class SpriteRequirementTests(unittest.TestCase):
+    def test_battery_requires_a_top_overlay(self):
+        root = Path("/mod")
+        self.assertEqual(
+            required_sprite_paths(root, "neizvesny-capacitor", "Battery", False),
+            [
+                root / "sprites" / "blocks" / "neizvesny-capacitor.png",
+                root / "sprites" / "blocks" / "neizvesny-capacitor-top.png",
+            ],
+        )
+
+    def test_turret_still_requires_its_base(self):
+        root = Path("/mod")
+        self.assertEqual(
+            required_sprite_paths(root, "neizvesny-sentinel", "ItemTurret", True),
+            [
+                root / "sprites" / "blocks" / "neizvesny-sentinel.png",
+                root / "sprites" / "blocks" / "neizvesny-sentinel-base.png",
+            ],
+        )
 
 
 if __name__ == "__main__":

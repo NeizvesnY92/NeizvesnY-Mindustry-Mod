@@ -15,7 +15,8 @@ try {
     "neizvesny-bulwark": prefix + "neizvesny-wall",
     "neizvesny-sentinel": "duo",
     "neizvesny-bastion": prefix + "neizvesny-sentinel",
-    "neizvesny-copper-power-plant": "combustion-generator"
+    "neizvesny-copper-power-plant": "combustion-generator",
+    "neizvesny-capacitor": prefix + "neizvesny-copper-power-plant"
   };
   var names = Object.keys(researchParents);
   for (var i = 0; i < names.length; i++) {
@@ -33,6 +34,15 @@ try {
       found = true;
     }
     if (!found) throw new Error("Missing research parent: " + names[i]);
+    if (names[i] === "neizvesny-capacitor") {
+      if (!(block instanceof Battery)) throw new Error("Expected Battery: " + names[i]);
+      if (block.consPower == null || !block.consPower.buffered)
+        throw new Error("Capacitor must use buffered power consumption");
+      if (Math.abs(block.consPower.capacity - 12000) > 0.01)
+        throw new Error("Wrong capacitor capacity: expected 12000, got " + block.consPower.capacity);
+      if (!block.outputsPower || !block.consumesPower)
+        throw new Error("Capacitor must connect as both a power source and consumer");
+    }
     if (names[i] === "neizvesny-copper-power-plant") {
       if (!(block instanceof ConsumeGenerator))
         throw new Error("Expected ConsumeGenerator: " + names[i]);

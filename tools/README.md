@@ -14,7 +14,7 @@ To check another checkout:
 python3 tools/check_mod.py /absolute/path/to/server-release.jar --mod /absolute/path/to/mod
 ```
 
-The server runs in a temporary directory with a copied mod. Existing game configuration and saves are not used. Exit code 0 requires a successful runtime check; exit code 1 indicates failure or timeout (60 seconds). The checker verifies all four existing blocks, the expected research parent for each, all declared turret ammunition types, and computed bullet range against turret targeting range. Checks use the actual loaded engine objects, not a second HJSON parser.
+The server runs in a temporary directory with a copied mod. Existing game configuration and saves are not used. Exit code 0 requires a successful runtime check; exit code 1 indicates failure or timeout (60 seconds). The checker verifies all six current blocks and their expected research parents, all declared turret ammunition types, computed bullet range against turret targeting range, the copper generator's output and burn duration, and the capacitor's native buffered-power capacity. Checks use the actual loaded engine objects, not a second HJSON parser.
 
 Validated on 2026-10-31 with official v136: current main passed; a copy with Sentinel copper lifetime reduced to 1 failed for insufficient range; a copy with a nonexistent research parent failed for missing research attachment. These negative tests are disposable mutations, not shipped gameplay changes.
 
@@ -64,7 +64,7 @@ Exercises the native hit handler at four angles on Dagger, Fortress and Flare, c
 python3 tools/check_assets.py
 ```
 
-No Mindustry JAR or third-party Python package is required. The checker reads PNG IHDR dimensions directly and verifies that each block sprite and each required turret base sprite is exactly 32 times the block size in pixels. It also checks that every block has a name and description key in both `bundle_ru.properties` and `bundle_ru_RU.properties`. This catches undersized or missing textures and incomplete Russian localization before import; it does not render the atlas or prove the in-game appearance.
+No Mindustry JAR or third-party Python package is required. The checker reads PNG IHDR dimensions directly and verifies that each block sprite and each required turret base sprite is exactly 32 times the block size in pixels. It also checks that every block has a name and description key in both `bundle_ru.properties` and `bundle_ru_RU.properties`. This catches undersized or missing textures, missing Battery top overlays and incomplete Russian localization before import; it does not render the atlas or prove the in-game appearance.
 
 ## PNG integrity and scanline validation
 
