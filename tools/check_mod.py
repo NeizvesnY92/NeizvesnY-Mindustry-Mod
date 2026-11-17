@@ -40,6 +40,22 @@ try {
         throw new Error("Wrong generator output: expected 4.0 power/tick, got " + block.powerProduction);
       if (Math.abs(block.itemDuration - 120.0) > 0.001)
         throw new Error("Wrong copper burn duration: expected 120 ticks, got " + block.itemDuration);
+      if (Math.abs(block.itemCapacity - 20) > 0.001)
+        throw new Error("Wrong generator item capacity: expected 20, got " + block.itemCapacity);
+      if (!block.hasItems || !block.acceptsItems)
+        throw new Error("Copper generator must accept and store item fuel");
+      var fuel = block.findConsumer(c => String(c.getClass().getSimpleName()) === "ConsumeItems");
+      if (fuel == null || fuel.items.length !== 1)
+        throw new Error("Copper generator must have exactly one item-fuel entry");
+      if (fuel.items[0].item !== Items.copper || Number(fuel.items[0].amount) !== 1)
+        throw new Error("Copper generator must consume exactly 1 copper per burn");
+      if (!block.consumesItem(Items.copper))
+        throw new Error("Copper generator does not accept copper fuel");
+      var forbiddenFuels = [Items.lead, Items.graphite, Items.silicon, Items.pyratite, Items.thorium, Items.blastCompound];
+      for (var f = 0; f < forbiddenFuels.length; f++) {
+        if (block.consumesItem(forbiddenFuels[f]))
+          throw new Error("Copper generator accepts unintended fuel: " + forbiddenFuels[f].name);
+      }
     }
     if (names[i] === "neizvesny-sentinel" || names[i] === "neizvesny-bastion") {
       if (!(block instanceof ItemTurret)) throw new Error("Expected ItemTurret: " + names[i]);
