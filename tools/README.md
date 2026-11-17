@@ -14,7 +14,7 @@ To check another checkout:
 python3 tools/check_mod.py /absolute/path/to/server-release.jar --mod /absolute/path/to/mod
 ```
 
-The server runs in a temporary directory with a copied mod. Existing game configuration and saves are not used. Exit code 0 requires a successful runtime check; exit code 1 indicates failure or timeout (60 seconds). The checker verifies all four existing blocks, the expected research parent for each, all declared turret ammunition types, and computed bullet range against turret targeting range. Checks use the actual loaded engine objects, not a second HJSON parser.
+The server runs in a temporary directory with a copied mod. Existing game configuration and saves are not used. Exit code 0 requires a successful runtime check; exit code 1 indicates failure or timeout (60 seconds). The checker verifies all five blocks, the expected research parent for each, all declared turret ammunition types, and computed bullet range against turret targeting range. For the copper power plant it also inspects the loaded v136 consumer: exactly one copper per burn, no unintended fuel items, a 20-item capacity, 120-tick burn duration and 4.0 power/tick output. Checks use the actual loaded engine objects, not a second HJSON parser.
 
 Validated on 2026-10-31 with official v136: current main passed; a copy with Sentinel copper lifetime reduced to 1 failed for insufficient range; a copy with a nonexistent research parent failed for missing research attachment. These negative tests are disposable mutations, not shipped gameplay changes.
 
