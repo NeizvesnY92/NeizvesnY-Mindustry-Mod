@@ -6,6 +6,7 @@
 - NeizvesnY Bulwark: 2x2 heavy wall, 2100 health, 9 armor.
 - NeizvesnY Sentinel: 2x2 fast twin-barrel turret, 320 range.
 - NeizvesnY Bastion: 3x3 heavy twin-barrel turret, 400 range.
+- NeizvesnY Copper Power Plant: 3x3 copper-fueled generator, 240 power/second.
 
 Both turrets accept copper, graphite, and silicon. Graphite is stronger; silicon boosts fire rate. Sentinel also accepts pyratite; Bastion also accepts blast compound and thorium.
 
@@ -15,7 +16,7 @@ Import the GitHub repository from Mindustry's Mods menu, or download the ZIP and
 
 ## Status
 
-The original Sentinel and wall are player-tested. Bastion uses dedicated 96x96 sprites for its 3x3 footprint. Bulwark now has dedicated 64x64 artwork for its 2x2 footprint. New gameplay and visual changes remain in test branches pending iPhone testing.
+The original Sentinel and wall are player-tested. The copper power plant is included in main and is checked against the official v136 engine. Bastion uses dedicated 96x96 sprites for its 3x3 footprint. Bulwark has dedicated 64x64 artwork for its 2x2 footprint. Other new gameplay and visual changes remain in test branches pending iPhone testing.
 
 ## Sentinel optional coolant (test build)
 
@@ -61,8 +62,8 @@ The old Bulwark reused the 32x32 1x1 Wall image despite occupying a 2x2 footprin
 
 Run `python3 tools/check_assets.py` to validate every block sprite and required turret base sprite against the 32-pixels-per-tile convention, plus the required block name/description keys in both Russian bundles. This static check needs Python 3 only, not a Mindustry server JAR. Version `0.2-test-bulwark-art-20261112` in `daily/bulwark-sprite-20261112` needs an iPhone visual and save/reload check before merge. See `docs/bulwark-sprite-validation.md`.
 
-## NeizvesnY Copper Power Plant (test build)
+## NeizvesnY Copper Power Plant (main build)
 
 A 3x3 copper-fueled power generator. It consumes 1 copper over 120 ticks (2 seconds) and produces 4.0 power per tick at full efficiency (240 power/second). This is four times the vanilla Combustion Generator's output, with copper as its only fuel. Capacity: 20 copper. Build cost: 160 copper, 120 lead, 80 graphite and 45 silicon.
 
-The block has a dedicated 96x96 pixel sprite, orange copper coils, a glowing core and native generation sparks. Version `0.2-test-copper-power-20261115` is isolated in `feature/copper-power-plant-20261115`; it is not merged into main. Headless v136 loading and asset checks must pass, followed by iPhone construction, fuel-consumption, power-network and save/reload testing.
+The block has a dedicated 96x96 pixel sprite, orange copper coils, a glowing core and native generation sparks. Version `0.2-test-copper-power-20261115` is included in `main`. The official v136 headless check verifies its loaded generator type, copper-only fuel contract, 20-item capacity, burn duration and power output. iPhone construction, fuel-consumption, power-network and save/reload testing are still required.
