@@ -10,7 +10,6 @@ warmupSpeed: 0.04
 effectChance: 0.04
 generateEffect: generatespark
 generateEffectRange: 45
-baseLightRadius: 50
 ambientSound: loopSmelter
 ambientSoundVolume: 0.08
 hasItems: true
