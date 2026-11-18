@@ -46,6 +46,7 @@ jobs:
           jar="$RUNNER_TEMP/server-release.jar"
           for check in \
             tools/check_mod.py \
+            tools/check_powerplant.py \
             tools/check_pyratite.py \
             tools/check_cooling.py \
             tools/check_blast.py \
