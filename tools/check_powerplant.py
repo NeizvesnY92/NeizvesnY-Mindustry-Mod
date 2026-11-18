@@ -70,7 +70,7 @@ try {
   if (Math.abs(build.getPowerProduction() - 4.0) > 0.001)
     throw new Error("full-efficiency output is not 4 power/tick");
 
-  // The native float countdown can cross zero on the boundary tick; allow one tick of tolerance.
+  /* The native float countdown can cross zero on the boundary tick; allow one tick of tolerance. */
   for (var t = 0; t < 120; t++) tick();
   if (build.items.get(Items.copper) !== 1)
     throw new Error("generator consumed the next copper before the first burn interval elapsed");
