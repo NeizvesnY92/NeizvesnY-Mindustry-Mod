@@ -68,18 +68,70 @@ def scanline_layout(width: int, height: int, bits_per_pixel: int, interlace: int
             continue
         row_bytes = (pass_width * bits_per_pixel + 7) // 8
         total += pass_height * (row_bytes + 1)
-        rows.append((pass_height, row_bytes))
+        rows.append((pass_width, pass_height, row_bytes))
     return total, rows
 
 
+def unfilter_scanline(encoded: bytes, previous: bytes, bytes_per_pixel: int,
+                      filter_type: int) -> bytearray:
+    """Reconstruct one PNG scanline using its selected filter."""
+    row = bytearray(len(encoded))
+    for i, value in enumerate(encoded):
+        left = row[i - bytes_per_pixel] if i >= bytes_per_pixel else 0
+        up = previous[i] if previous else 0
+        upper_left = (
+            previous[i - bytes_per_pixel]
+            if previous and i >= bytes_per_pixel else 0
+        )
+        if filter_type == 0:
+            predictor = 0
+        elif filter_type == 1:
+            predictor = left
+        elif filter_type == 2:
+            predictor = up
+        elif filter_type == 3:
+            predictor = (left + up) // 2
+        else:
+            estimate = left + up - upper_left
+            left_distance = abs(estimate - left)
+            up_distance = abs(estimate - up)
+            upper_left_distance = abs(estimate - upper_left)
+            if left_distance <= up_distance and left_distance <= upper_left_distance:
+                predictor = left
+            elif up_distance <= upper_left_distance:
+                predictor = up
+            else:
+                predictor = upper_left
+        row[i] = (value + predictor) & 0xFF
+    return row
+
+
+def validate_palette_indices(row: bytes, pass_width: int, bit_depth: int,
+                            palette_entries: int) -> None:
+    mask = (1 << bit_depth) - 1
+    for pixel in range(pass_width):
+        bit_offset = pixel * bit_depth
+        byte_index = bit_offset // 8
+        shift = 8 - bit_depth - (bit_offset % 8)
+        index = (row[byte_index] >> shift) & mask
+        if index >= palette_entries:
+            raise ValueError(
+                f"PNG palette index {index} is outside the {palette_entries}-entry PLTE"
+            )
+
+
 def validate_image_data(compressed: bytes, width: int, height: int,
-                        bit_depth: int, color_type: int, interlace: int) -> None:
+                        bit_depth: int, color_type: int, interlace: int,
+                        palette_entries: Optional[int]) -> None:
     bits_per_pixel = bit_depth * CHANNELS[color_type]
+    bytes_per_pixel = max(1, (bits_per_pixel + 7) // 8)
     expected_size, rows = scanline_layout(width, height, bits_per_pixel, interlace)
     if expected_size > MAX_DECODED_BYTES:
         raise ValueError(
             f"PNG decoded image exceeds the {MAX_DECODED_BYTES}-byte validation limit"
         )
+    if color_type == 3 and palette_entries is None:
+        raise ValueError("indexed PNG is missing its PLTE palette")
     try:
         decoder = zlib.decompressobj()
         decoded = decoder.decompress(compressed, expected_size + 1)
@@ -96,13 +148,21 @@ def validate_image_data(compressed: bytes, width: int, height: int,
         raise ValueError(
             f"PNG decoded scanline data has {len(decoded)} bytes; expected {expected_size}"
         )
+
     offset = 0
-    for pass_rows, row_bytes in rows:
+    for pass_width, pass_rows, row_bytes in rows:
+        previous = bytes(row_bytes)
         for _ in range(pass_rows):
             filter_type = decoded[offset]
             if filter_type > 4:
                 raise ValueError(f"PNG scanline uses invalid filter type {filter_type}")
-            offset += row_bytes + 1
+            offset += 1
+            encoded = decoded[offset:offset + row_bytes]
+            offset += row_bytes
+            row = unfilter_scanline(encoded, previous, bytes_per_pixel, filter_type)
+            if color_type == 3:
+                validate_palette_indices(row, pass_width, bit_depth, palette_entries)
+            previous = row
     if offset != len(decoded):
         raise ValueError("PNG scanline layout does not consume all decoded image data")
 
@@ -116,6 +176,7 @@ def png_dimensions(path: Path) -> Tuple[int, int]:
         width = height = color_type = None
         seen_ihdr = False
         seen_plte = False
+        palette_entries = None
         seen_idat = False
         idat_ended = False
         idat_bytes = 0
@@ -169,6 +230,7 @@ def png_dimensions(path: Path) -> Tuple[int, int]:
                 if color_type == 3 and length // 3 > (1 << bit_depth):
                     raise ValueError("indexed PNG palette has more entries than its bit depth permits")
                 seen_plte = True
+                palette_entries = length // 3
             elif chunk_type == b"IDAT":
                 if idat_ended:
                     raise ValueError("PNG IDAT chunks must be consecutive")
@@ -192,7 +254,8 @@ def png_dimensions(path: Path) -> Tuple[int, int]:
                     if color_type == 3 and not seen_plte:
                         raise ValueError("indexed PNG is missing its PLTE palette")
                     validate_image_data(
-                        bytes(compressed), width, height, bit_depth, color_type, interlace
+                        bytes(compressed), width, height, bit_depth, color_type, interlace,
+                        palette_entries
                     )
                     return width, height
                 if chunk_type[0] & 0x20 == 0 and chunk_type != b"PLTE":
